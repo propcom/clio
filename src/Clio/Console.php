@@ -428,7 +428,8 @@ class Console
                     $r = array($sockets[1]);
                     $w = null;
                     $e = null;
-                    if ($status = socket_select($r, $w, $e, 0)) {
+                    $status = socket_select($r, $w, $e, 0);
+                    if ($status !== false) {
                         $data = socket_read($sockets[1], 4096, PHP_NORMAL_READ);
                         if ($data === false) {
                             throw new \Exception(
@@ -441,6 +442,13 @@ class Console
                         echo str_repeat(chr(8), strlen($text));
                         $text = rtrim($data, "\n");
                         Console::stdout($text);
+                    } elseif ($status === false) {
+                        throw new \Exception(
+                            sprintf(
+                                'socket status error %s',
+                                socket_strerror(socket_last_error($sockets[1]))
+                            )
+                        );
                     } else {
                         pcntl_signal_dispatch();
                     }
