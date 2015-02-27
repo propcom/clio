@@ -124,7 +124,7 @@ class Daemon
      *
      * @return bool True on success, false otherwise
      */
-    public static function kill($file, $delete = false)
+    public static function kill($file, $delete = false, $signal = SIGTERM)
     {
         if (!extension_loaded('posix')) {
             throw new \Exception('posix extension required');
@@ -144,8 +144,8 @@ class Daemon
         }
 
         $pid = fgets($lock);
-         
-        if (posix_kill($pid, SIGTERM)) {
+
+        if (posix_kill($pid, $signal)) {
             if ($delete) unlink($file);
             return true;
         } else {
